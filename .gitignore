@@ -9,3 +9,4 @@ bin/
 obj/
 dsh-*.exe
 SnowLuma-*.zip
+dist/

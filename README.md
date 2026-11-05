@@ -4,7 +4,9 @@ Windows 图形安装器，自动检测和安装 DeepSeek Harness（DSH），再�
 
 ## 下载与使用
 
-1. [下载一键安装器 DafeiyuInstaller.exe](https://github.com/heyule69/dafeiyu-installer/raw/refs/heads/main/dist/DafeiyuInstaller.exe)。
+[查看最新版本与更新说明](https://github.com/heyule69/dafeiyu-installer/releases/latest)。
+
+1. [下载一键安装器 DafeiyuInstaller.exe](https://github.com/heyule69/dafeiyu-installer/releases/latest/download/DafeiyuInstaller.exe)。
 2. Windows 10 / 11 64 位系统下双击运行，点击“开始安装”。程序暂未签名，Windows 可能提示“Windows 已保护你的电脑”。
 3. 按 DSH 安装窗口提示完成安装；安装插件前先保存 DSH 中的内容，再确认关闭，完成后会重新打开 DSH。
 4. 在 DSH 中配置模型 API Key，然后打开 Aurabot 设置向导完成 QQ 和网关配置。

@@ -1,0 +1,68 @@
+name: Publish installer
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing version tag to publish
+        required: true
+        default: v1.0.0
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    env:
+      RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - name: Validate version tag
+        shell: pwsh
+        run: |
+          if ($env:RELEASE_TAG -notmatch '^v[0-9]+\.[0-9]+\.[0-9]+$') {
+            throw 'Use a version tag such as v1.0.0.'
+          }
+
+      - name: Check out tagged source
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ env.RELEASE_TAG }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Build Windows installer
+        shell: cmd
+        run: installer\build.bat
+
+      - name: Publish Release and installer
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $hash = (Get-FileHash -LiteralPath 'dist/DafeiyuInstaller.exe' -Algorithm SHA256).Hash.ToLowerInvariant()
+          $notes = @'
+          Windows 10 / 11（64 位）一键安装器。
+
+          - 自动检测并安装 DeepSeek Harness（DSH），安装或升级大肥鱼 Aurabot 插件。
+          - 优先使用与安装器同目录的 DSH 官方安装包；没有时才提示下载。
+          - 运行 DSH 安装包前校验 DeepSeek 官方数字签名。
+
+          下载下方 Assets 中的 DafeiyuInstaller.exe，双击运行。安装插件仍需联网访问 GitHub。
+          '@
+          $notes = $notes + "`n`nSHA256: " + $hash + "`n"
+          $notesFile = Join-Path $env:RUNNER_TEMP 'dafeiyu-release-notes.md'
+          [System.IO.File]::WriteAllText($notesFile, $notes, [System.Text.UTF8Encoding]::new($false))
+          gh release create $env:RELEASE_TAG 'dist/DafeiyuInstaller.exe' --verify-tag --latest --title "大肥鱼一键安装器 $env:RELEASE_TAG" --notes-file $notesFile
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

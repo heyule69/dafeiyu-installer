@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+*.log
+*.part
+.env
+.env.*
+.vs/
+bin/
+obj/
+dsh-*.exe
+SnowLuma-*.zip
